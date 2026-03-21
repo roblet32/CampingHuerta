@@ -1,0 +1,98 @@
+Listado de rutas de carpetas
+El número de serie del volumen es 5E0F-1783
+C:\USERS\ROSBLET\DOCUMENTS\CAMPINGHUERTA\SRC
+|   proxy.ts
+|   
++---app
+|   |   favicon.ico
+|   |   globals.css
+|   |   layout.tsx
+|   |   
+|   +---(public)
+|   |   |   layout.tsx
+|   |   |   page.tsx
+|   |   |   
+|   |   +---contacto
+|   |   |       page.tsx
+|   |   |       
+|   |   +---espacios
+|   |   |   |   page.tsx
+|   |   |   |   
+|   |   |   \---[id]
+|   |   |           actions.ts
+|   |   |           BookingWidget.tsx
+|   |   |           page.tsx
+|   |   |           
+|   |   +---galeria
+|   |   |       page.tsx
+|   |   |       
+|   |   +---login
+|   |   |       actions.ts
+|   |   |       page.tsx
+|   |   |       
+|   |   +---nosotros
+|   |   |       page.tsx
+|   |   |       
+|   |   +---perfil
+|   |   |       page.tsx
+|   |   |       payment-actions.ts
+|   |   |       PaymentButton.tsx
+|   |   |       
+|   |   \---registro
+|   |           actions.ts
+|   |           page.tsx
+|   |           
+|   \---admin
+|       +---(dashboard)
+|       |   |   layout.tsx
+|       |   |   page.tsx
+|       |   |   
+|       |   +---clientes
+|       |   |       ClientSearchForm.tsx
+|       |   |       page.tsx
+|       |   |       
+|       |   +---configuracion
+|       |   |       actions.ts
+|       |   |       AdminCreationForm.tsx
+|       |   |       page.tsx
+|       |   |       
+|       |   +---espacios
+|       |   |   |   actions.ts
+|       |   |   |   page.tsx
+|       |   |   |   
+|       |   |   +---nuevo
+|       |   |   |       page.tsx
+|       |   |   |       
+|       |   |   \---[id]
+|       |   |       \---editar
+|       |   |               page.tsx
+|       |   |               
+|       |   \---reservas
+|       |           actions.ts
+|       |           ActionsCell.tsx
+|       |           page.tsx
+|       |           ReservationSearchForm.tsx
+|       |           
+|       +---login
+|       |       actions.ts
+|       |       AdminLoginForm.tsx
+|       |       page.tsx
+|       |       
+|       \---registro-temporal
+|               actions.ts
+|               AdminRegistrationForm.tsx
+|               page.tsx
+|               
++---components
+|   +---admin
+|   |       DeleteSpaceButton.tsx
+|   |       SpaceForm.tsx
+|   |       
+|   \---public
+|           Footer.tsx
+|           Header.tsx
+|           
+\---lib
+        prisma.ts
+        session.ts
+        

@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  password     String
+  name         String?
+  role         Role          @default(USER)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  reservations Reservation[]
+}
+
+enum SpaceType {
+  PARKING      // Estacionamiento
+  OPEN_FIELD   // Campo Abierto
+  PALAPA       // Palapa
+  RIVERSIDE    // Cerca del Rio
+  HOUSE        // Casa
+}
+
+model Space {
+  id           String        @id @default(cuid())
+  name         String
+  description  String?
+  price        Float
+  capacity     Int           @default(1)
+  type         SpaceType     @default(OPEN_FIELD)
+  images       String[]      // Array of image URLs
+  isAvailable  Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  reservations Reservation[]
+}
+
+enum ReservationStatus {
+  PENDING
+  APPROVED
+  PAID
+  REJECTED
+  CANCELLED
+}
+
+model Reservation {
+  id        String            @id @default(cuid())
+  startDate DateTime
+  endDate   DateTime
+  guests    Int               @default(1)
+  status    ReservationStatus @default(PENDING)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  spaceId   String
+  space     Space    @relation(fields: [spaceId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
