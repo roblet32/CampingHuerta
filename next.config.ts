@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    serverActions: {
+      allowedOrigins: ["moony-audria-bromidically.ngrok-free.dev"],
+    },
+  },
 };
 
 export default nextConfig;

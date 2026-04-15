@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getSession } from "@/lib/session";
 import { logoutAdmin } from "@/app/admin/login/actions";
+import { prisma } from "@/lib/prisma";
+import AdminMobileMenu from "@/components/admin/AdminMobileMenu";
 
 // SVG Icons for sidebar
 function DashboardIcon() {
@@ -28,11 +30,15 @@ export default async function AdminLayout({
     children: React.ReactNode;
 }) {
     const session = await getSession("ADMIN");
+    const adminName = session?.name || "Administrador";
+    const pendingCount = await prisma.reservation.count({
+        where: { status: "PENDING" }
+    });
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-[family-name:var(--font-geist-sans)]">
-            {/* Sidebar Navigation */}
-            <aside className="w-full md:w-64 bg-slate-900 text-slate-300 md:min-h-screen shrink-0 border-r border-slate-800">
+            {/* Desktop Sidebar (Hidden on Mobile) */}
+            <aside className="hidden md:flex w-64 bg-slate-900 text-slate-300 min-h-screen shrink-0 border-r border-slate-800 flex-col">
                 <div className="h-16 flex items-center px-6 border-b border-slate-800">
                     <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded bg-emerald-500 flex items-center justify-center text-white font-bold text-xs">
@@ -41,7 +47,7 @@ export default async function AdminLayout({
                         <span className="text-lg font-bold text-white tracking-tight">Admin<span className="text-emerald-500">Panel</span></span>
                     </div>
                 </div>
-                <nav className="p-4 flex flex-col gap-1.5">
+                <nav className="p-4 flex flex-col gap-1.5 overflow-y-auto">
                     <Link href="/admin" className="px-4 py-2.5 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-500 transition-colors flex items-center gap-3">
                         <DashboardIcon /> Dashboard
                     </Link>
@@ -50,6 +56,11 @@ export default async function AdminLayout({
                     </Link>
                     <Link href="/admin/reservas" className="px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-3">
                         <CalendarIcon /> Reservaciones
+                        {pendingCount > 0 && (
+                            <span className="ml-auto w-5 h-5 bg-emerald-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                                {pendingCount}
+                            </span>
+                        )}
                     </Link>
                     <Link href="/admin/clientes" className="px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center gap-3">
                         <UsersIcon /> Clientes
@@ -59,14 +70,14 @@ export default async function AdminLayout({
                     </Link>
                 </nav>
 
-                {/* User Info / Logout */}
-                <div className="p-4 mt-auto md:absolute bottom-0 w-full md:w-64 border-t border-slate-800">
+                {/* User Info / Logout (Desktop) */}
+                <div className="p-4 mt-auto border-t border-slate-800 bg-slate-900/50">
                     <div className="flex items-center gap-3 px-4 py-2">
                         <div className="w-8 h-8 rounded-full bg-emerald-700 flex items-center justify-center text-sm font-medium text-white uppercase">
-                            {session?.name ? session.name.charAt(0) : "A"}
+                            {adminName.charAt(0)}
                         </div>
                         <div>
-                            <p className="text-sm font-medium text-white line-clamp-1">{session?.name || "Administrador"}</p>
+                            <p className="text-sm font-medium text-white line-clamp-1">{adminName}</p>
                             <form action={logoutAdmin}>
                                 <button type="submit" className="text-xs text-slate-500 hover:text-red-400 transition-colors">Cerrar Sesión</button>
                             </form>
@@ -77,19 +88,31 @@ export default async function AdminLayout({
 
             {/* Main Content Area */}
             <main className="flex-1 flex flex-col h-screen overflow-y-auto">
-                {/* Topbar */}
-                <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 sticky top-0 z-10">
-                    <h2 className="text-lg font-semibold text-slate-800">Panel de Control</h2>
-                    <div className="flex items-center gap-4">
-                        <button className="text-slate-400 hover:text-emerald-600 transition-colors relative" aria-label="Notificaciones">
+                {/* Topbar (Responsive) */}
+                <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6 shrink-0 sticky top-0 z-[50]">
+                    <div className="flex items-center gap-3">
+                        {/* Componente del Menú Móvil */}
+                        <AdminMobileMenu 
+                            pendingCount={pendingCount} 
+                            adminName={adminName} 
+                            logoutAction={logoutAdmin} 
+                        />
+                        <h2 className="text-base md:text-lg font-semibold text-slate-800 truncate">Panel de Control</h2>
+                    </div>
+                    <div className="flex items-center gap-2 md:gap-4">
+                        <Link href="/admin/reservas" className="text-slate-400 hover:text-emerald-600 transition-colors relative p-2" aria-label="Notificaciones">
                             <BellIcon />
-                            <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-                        </button>
+                            {pendingCount > 0 && (
+                                <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full animate-bounce">
+                                    {pendingCount}
+                                </span>
+                            )}
+                        </Link>
                     </div>
                 </header>
 
                 {/* Page Content */}
-                <div className="p-6 md:p-8 flex-1">
+                <div className="p-4 md:p-8 flex-1">
                     {children}
                 </div>
             </main>

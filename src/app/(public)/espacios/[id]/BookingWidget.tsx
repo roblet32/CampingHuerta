@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createReservationAction } from "./actions";
 
@@ -22,11 +22,18 @@ export default function BookingWidget({
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
 
+    const [minDate, setMinDate] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [guests, setGuests] = useState(1);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
+
+    useEffect(() => {
+        // Establecer fecha mínima segura en el cliente para evitar errores de hidratación
+        const today = new Date().toISOString().split("T")[0];
+        setMinDate(today);
+    }, []);
 
     // Cálculos simples de prueba
     const sDate = startDate ? new Date(startDate) : null;
@@ -107,33 +114,33 @@ export default function BookingWidget({
                 )}
             </div>
 
-            <form onSubmit={handleReserve} className="space-y-5">
+            <form onSubmit={handleReserve} className="space-y-4 lg:space-y-5">
                 {/* Fechas */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
                     <div>
-                        <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                        <label className="block text-[10px] lg:text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 lg:mb-2">
                             Llegada
                         </label>
                         <input
                             type="date"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
-                            min={new Date().toISOString().split("T")[0]}
+                            min={minDate}
                             disabled={!isAvailable || isPending}
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all hover:bg-white"
+                            className="w-full px-3 lg:px-4 py-2.5 lg:py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm lg:text-base text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all hover:bg-white"
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                        <label className="block text-[10px] lg:text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 lg:mb-2">
                             Salida
                         </label>
                         <input
                             type="date"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
-                            min={startDate || new Date().toISOString().split("T")[0]}
+                            min={startDate || minDate}
                             disabled={!isAvailable || isPending}
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all hover:bg-white"
+                            className="w-full px-3 lg:px-4 py-2.5 lg:py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm lg:text-base text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all hover:bg-white"
                         />
                     </div>
                 </div>
@@ -180,7 +187,19 @@ export default function BookingWidget({
                     {isPending ? 'Procesando...' : (!isLoggedIn ? 'Inicia sesión para reservar' : 'Solicitar Reserva')}
                 </button>
             </form>
-            <p className="text-center text-xs text-slate-400 mt-4 font-medium">No se hará ningún cargo por ahora.</p>
+            <div className="mt-6 pt-6 border-t border-slate-100">
+                <p className="text-center text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Método de Pago Único</p>
+                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                    <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-emerald-600">
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                    </div>
+                    <div className="text-left">
+                        <p className="text-sm font-bold text-slate-800">Pagar en Persona / Efectivo</p>
+                        <p className="text-[10px] text-slate-500 leading-tight">Liquida tu reserva directamente al llegar al Camping.</p>
+                    </div>
+                </div>
+                <p className="text-center text-[10px] text-slate-400 mt-4 italic">No se requiere tarjeta de crédito ni pago anticipado por el sistema.</p>
+            </div>
         </div>
     );
 }

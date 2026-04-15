@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import BookingWidget from "./BookingWidget";
 import { getSession } from "@/lib/session";
+import ImageCarousel from "./ImageCarousel";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +12,7 @@ const typeLabels: Record<string, string> = {
     OPEN_FIELD: "Campo Abierto",
     PALAPA: "Palapa",
     RIVERSIDE: "Cerca del Río",
-    HOUSE: "Casa"
+    HOUSE: "Casa / Cabaña"
 };
 
 // SVG icon for each amenity
@@ -57,7 +58,7 @@ export default async function SpaceDetailPage({
         RIVERSIDE: "/images/gallery/orilla1.jpeg",
         HOUSE: "/images/gallery/hjjdlala.jpeg",
     };
-    const heroImage = space.images?.[0] || typeFallbacks[space.type] || "/images/gallery/1.jpeg";
+    const fallbackImage = typeFallbacks[space.type] || "/images/gallery/1.jpeg";
 
     return (
         <div className="min-h-screen bg-slate-50 pt-24 pb-24">
@@ -65,7 +66,7 @@ export default async function SpaceDetailPage({
 
                 {/* Back button */}
                 <div className="mb-6">
-                    <Link href="/espacios" className="text-emerald-700 hover:text-emerald-800 font-medium flex items-center gap-2 transition-colors">
+                    <Link href="/espacios" className="text-emerald-700 hover:text-emerald-800 font-medium flex items-center gap-2 transition-colors w-fit">
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
@@ -73,20 +74,12 @@ export default async function SpaceDetailPage({
                     </Link>
                 </div>
 
-                {/* Hero Image */}
-                <div className="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-200 mb-10 h-[50vh] min-h-[400px] relative">
-                    <div
-                        className="absolute inset-0 bg-cover bg-center"
-                        style={{ backgroundImage: `url('${heroImage}')` }}
-                    />
-                    {!space.isAvailable && (
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                            <span className="bg-white/90 text-red-700 font-bold text-xl px-6 py-3 rounded-full">
-                                No Disponible
-                            </span>
-                        </div>
-                    )}
-                </div>
+                {/* Hero Image Carousel */}
+                <ImageCarousel 
+                    images={space.images || []} 
+                    fallbackImage={fallbackImage} 
+                    isAvailable={space.isAvailable} 
+                />
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 

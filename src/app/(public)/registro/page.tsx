@@ -2,9 +2,12 @@
 
 import { useTransition, useState } from "react";
 import { registerClient } from "./actions";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function RegisterPage() {
+    const searchParams = useSearchParams();
+    const isSuccess = searchParams.get("success") === "true";
     const [isPending, startTransition] = useTransition();
     const [error, setError] = useState<string | null>(null);
 
@@ -21,6 +24,27 @@ export default function RegisterPage() {
             }
         });
     };
+
+    if (isSuccess) {
+        return (
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 pt-24 font-[family-name:var(--font-geist-sans)]">
+                <div className="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 p-8 text-center">
+                    <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg className="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">¡Casi listo!</h2>
+                    <p className="text-gray-600 mb-8">
+                        Hemos enviado un enlace de activación a tu correo electrónico. Por favor revisa tu bandeja de entrada (y la carpeta de spam).
+                    </p>
+                    <Link href="/login" className="inline-block bg-emerald-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-emerald-700 transition-all">
+                        Ir al Inicio de Sesión
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 pt-24 font-[family-name:var(--font-geist-sans)]">

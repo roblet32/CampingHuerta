@@ -31,9 +31,16 @@ function TypeIcon({ type }: { type: string }) {
 }
 
 export default async function PublicSpacesPage() {
-    const spaces = await prisma.space.findMany({
+    const spacesRaw = await prisma.space.findMany({
         where: { isAvailable: true },
         orderBy: { price: 'asc' }
+    });
+
+    // Poner tipo HOUSE (Cabaña) al principio
+    const spaces = spacesRaw.sort((a, b) => {
+        if (a.type === "HOUSE" && b.type !== "HOUSE") return -1;
+        if (b.type === "HOUSE" && a.type !== "HOUSE") return 1;
+        return 0; // Mantener el orden original de precio para los demás
     });
 
     return (

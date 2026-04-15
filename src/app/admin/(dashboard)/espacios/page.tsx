@@ -93,7 +93,7 @@ export default async function AdminSpacesPage() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex items-center justify-end gap-2 transition-opacity">
                                                 <Link
                                                     href={`/admin/espacios/${space.id}/editar`}
                                                     className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors inline-block"

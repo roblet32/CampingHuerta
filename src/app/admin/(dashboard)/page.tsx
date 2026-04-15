@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import DashboardCalendar from "@/components/admin/DashboardCalendar";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +44,26 @@ export default async function AdminDashboard() {
         return acc + (res.space.price * nights);
     }, 0);
 
+    // Get all reservations for the calendar (to show occupancy visually)
+    const calendarReservationsRaw = await prisma.reservation.findMany({
+        where: {
+            OR: [
+                { startDate: { gte: firstDayOfMonth } },
+                { endDate: { gte: firstDayOfMonth } }
+            ]
+        },
+        include: { user: true, space: true }
+    });
+
+    const calendarReservations = calendarReservationsRaw.map(res => ({
+        id: res.id,
+        userName: res.user.name || "Sin nombre",
+        spaceName: res.space.name,
+        startDate: res.startDate,
+        endDate: res.endDate,
+        status: res.status
+    }));
+
     // Calculate today's occupancy
     const totalSpaces = await prisma.space.count({ where: { isAvailable: true } });
     const today = new Date();
@@ -67,85 +88,76 @@ export default async function AdminDashboard() {
     });
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold text-slate-800">Resumen del Sistema</h1>
-                <div className="bg-white px-4 py-2 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 shadow-sm">
-                    {new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+        <div className="space-y-10">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 className="text-3xl font-black text-slate-800 tracking-tight">Panel Administrativo</h1>
+                    <p className="text-slate-500 text-sm mt-1 font-medium italic">Camping Huerta Digital Control Center</p>
+                </div>
+                <div className="bg-white px-5 py-2.5 rounded-2xl border border-slate-200 text-sm font-bold text-slate-600 shadow-sm flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
                 </div>
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm h-32 flex flex-col justify-between hover:shadow-md transition-shadow">
+            {/* Stats Cards - Carousel on Mobile, Grid on Desktop */}
+            <div className="flex overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 snap-x snap-mandatory scrollbar-hide">
+                <div className="min-w-[280px] md:min-w-0 flex-shrink-0 snap-center bg-white p-6 rounded-2xl border border-slate-100 shadow-sm h-32 flex flex-col justify-between hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-start">
                         <div>
-                            <p className="text-sm font-medium text-slate-500 mb-1">Total Reservas</p>
-                            <h3 className="text-3xl font-bold text-slate-800">{totalReservations}</h3>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Total Reservas</p>
+                            <h3 className="text-3xl font-black text-slate-800 tracking-tighter">{totalReservations}</h3>
                         </div>
-                        <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+                        <div className="p-2.5 bg-emerald-50 rounded-xl text-emerald-600">
                             <CalendarIcon className="w-6 h-6" />
                         </div>
                     </div>
-                    <div className="flex items-center text-sm">
-                        <span className="text-emerald-600 font-medium flex items-center gap-1">
-                            <TrendUpIcon /> 12%
-                        </span>
-                        <span className="text-slate-400 ml-2">vs mes anterior</span>
-                    </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm h-32 flex flex-col justify-between hover:shadow-md transition-shadow">
+                <div className="min-w-[280px] md:min-w-0 flex-shrink-0 snap-center bg-white p-6 rounded-2xl border border-slate-100 shadow-sm h-32 flex flex-col justify-between hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-start">
                         <div>
-                            <p className="text-sm font-medium text-slate-500 mb-1">Ingresos (Mes)</p>
-                            <h3 className="text-3xl font-bold text-slate-800">${monthlyRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Ingresos (Mes)</p>
+                            <h3 className="text-3xl font-black text-slate-800 tracking-tighter">${monthlyRevenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</h3>
                         </div>
-                        <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+                        <div className="p-2.5 bg-blue-50 rounded-xl text-blue-600">
                             <CurrencyIcon className="w-6 h-6" />
                         </div>
                     </div>
-                    <div className="flex items-center text-sm">
-                        <span className="text-emerald-600 font-medium flex items-center gap-1">
-                            <TrendUpIcon /> 8%
-                        </span>
-                        <span className="text-slate-400 ml-2">vs mes anterior</span>
-                    </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm h-32 flex flex-col justify-between hover:shadow-md transition-shadow">
+                <div className="min-w-[280px] md:min-w-0 flex-shrink-0 snap-center bg-white p-6 rounded-2xl border border-slate-100 shadow-sm h-32 flex flex-col justify-between hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-start">
                         <div>
-                            <p className="text-sm font-medium text-slate-500 mb-1">Espacios Ocupados</p>
-                            <h3 className="text-3xl font-bold text-slate-800">{activeReservationsToday}/{totalSpaces}</h3>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Ocupación</p>
+                            <h3 className="text-3xl font-black text-slate-800 tracking-tighter">{occupancyRate}%</h3>
                         </div>
-                        <div className="p-2 bg-amber-50 rounded-lg text-amber-600">
+                        <div className="p-2.5 bg-amber-50 rounded-xl text-amber-600">
                             <MapPinIcon className="w-6 h-6" />
                         </div>
                     </div>
-                    <div className="flex items-center text-sm">
-                        <span className="text-amber-600 font-medium">{occupancyRate}%</span>
-                        <span className="text-slate-400 ml-2">ocupación hoy</span>
-                    </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm h-32 flex flex-col justify-between hover:shadow-md transition-shadow">
+                <div className="min-w-[280px] md:min-w-0 flex-shrink-0 snap-center bg-white p-6 rounded-2xl border border-slate-100 shadow-sm h-32 flex flex-col justify-between hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-start">
                         <div>
-                            <p className="text-sm font-medium text-slate-500 mb-1">Nuevos Clientes</p>
-                            <h3 className="text-3xl font-bold text-slate-800">{newClients}</h3>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Clientes</p>
+                            <h3 className="text-3xl font-black text-slate-800 tracking-tighter">{newClients}</h3>
                         </div>
-                        <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
+                        <div className="p-2.5 bg-indigo-50 rounded-xl text-indigo-600">
                             <UsersIcon className="w-6 h-6" />
                         </div>
                     </div>
-                    <div className="flex items-center text-sm">
-                        <span className="text-emerald-600 font-medium flex items-center gap-1">
-                            <TrendUpIcon /> 24%
-                        </span>
-                        <span className="text-slate-400 ml-2">vs mes anterior</span>
-                    </div>
                 </div>
+            </div>
+
+            {/* Calendar Section */}
+            <div className="space-y-4">
+                <h3 className="text-xl font-black text-slate-800 flex items-center gap-2">
+                    <span className="w-8 h-1 bg-emerald-500 rounded-full"></span>
+                    Calendario de Ocupación
+                </h3>
+                <DashboardCalendar reservations={calendarReservations} />
             </div>
 
             {/* Recent Activity Table */}

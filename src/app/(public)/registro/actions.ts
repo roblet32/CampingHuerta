@@ -3,6 +3,8 @@
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
+// import { generateVerificationToken } from "@/lib/tokens";
+// import { sendVerificationEmail } from "@/lib/mail";
 import { createSession } from "@/lib/session";
 
 export async function registerClient(formData: FormData) {
@@ -32,6 +34,12 @@ export async function registerClient(formData: FormData) {
             role: "USER",
         },
     });
+
+    /*
+    const verificationToken = await generateVerificationToken(user.email);
+    await sendVerificationEmail(verificationToken.email, verificationToken.token);
+    redirect("/registro?success=true");
+    */
 
     await createSession({
         userId: user.id,

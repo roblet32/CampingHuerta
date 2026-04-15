@@ -1,10 +1,58 @@
-import { PrismaClient, SpaceType } from '@prisma/client';
+import { PrismaClient, SpaceType, Role } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 async function main() {
-    console.log('Start seeding...');
+    console.log('🚀 Iniciando limpieza parcial y siembra de datos...');
 
+    // 1. LIMPIEZA PARCIAL (Borrar todo excepto el admin principal si existe)
+    console.log('🧹 Limpiando tablas de Reservas y Espacios...');
+    await prisma.reservation.deleteMany({});
+    await prisma.space.deleteMany({});
+
+    console.log('👤 Limpiando usuarios antiguos (manteniendo huerta12@gmail.com)...');
+    await prisma.user.deleteMany({
+        where: {
+            email: {
+                not: 'huerta12@gmail.com'
+            }
+        }
+    });
+
+    // 2. CREACIÓN DE USUARIOS PARA PRUEBAS (Playwright)
+    console.log('🔑 Creando usuarios de prueba...');
+    
+    const usersData = [
+        {
+            email: 'huerta12@gmail.com',
+            password: 'admin123',
+            name: 'Administrador Principal',
+            role: Role.ADMIN
+        }
+    ];
+
+    for (const userData of usersData) {
+        const hashedPassword = await bcrypt.hash(userData.password, 10);
+        await prisma.user.upsert({
+            where: { email: userData.email },
+            update: {
+                password: hashedPassword,
+                role: userData.role,
+                name: userData.name
+            },
+            create: {
+                email: userData.email,
+                password: hashedPassword,
+                role: userData.role,
+                name: userData.name
+            }
+        });
+        console.log(`✅ Usuario configurado: ${userData.email}`);
+    }
+
+    // 3. CREACIÓN DE ESPACIOS
+    console.log('⛺ Creando espacios de camping...');
     const spacesData = [
         {
             name: 'Estacionamiento Principal',
@@ -54,13 +102,13 @@ async function main() {
     ];
 
     for (const space of spacesData) {
-        const spaceRecord = await prisma.space.create({
+        await prisma.space.create({
             data: space,
         });
-        console.log(`Created space with id: ${spaceRecord.id}`);
+        console.log(`✅ Espacio creado: ${space.name}`);
     }
 
-    console.log('Seeding finished.');
+    console.log('✨ Proceso de siembra finalizado exitosamente.');
 }
 
 main()
@@ -68,7 +116,7 @@ main()
         await prisma.$disconnect();
     })
     .catch(async (e) => {
-        console.error(e);
+        console.error('❌ Error durante el seed:', e);
         await prisma.$disconnect();
         process.exit(1);
     });

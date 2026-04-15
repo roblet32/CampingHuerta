@@ -113,7 +113,7 @@ export default async function AdminClientsPage({
                                                 )}
                                             </td>
                                             <td className="px-6 py-4 text-right">
-                                                <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <div className="flex items-center justify-end gap-2 transition-opacity">
                                                     <Link
                                                         href={`/admin/reservas?cliente=${client.id}`}
                                                         className="px-3 py-1.5 text-xs font-medium text-emerald-700 hover:text-white border border-emerald-600 hover:bg-emerald-600 rounded-lg transition-colors"

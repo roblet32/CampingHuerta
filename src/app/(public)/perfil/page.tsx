@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { logoutClient } from "@/app/(public)/login/actions";
 import Link from "next/link";
-import PaymentButton from "./PaymentButton";
+import PaymentInstructionsModal from "./PaymentSelectionModal";
+import { getStayStatus } from "@/lib/stay-utils";
 
 export default async function PerfilPage() {
     const session = await getSession("USER");
@@ -27,13 +28,6 @@ export default async function PerfilPage() {
         redirect("/login");
     }
 
-    const statusLabels: Record<string, { label: string, color: string }> = {
-        PENDING: { label: "Pendiente", color: "bg-amber-100 text-amber-700" },
-        APPROVED: { label: "Aprobada (Falta Pago)", color: "bg-blue-100 text-blue-700" },
-        PAID: { label: "Confirmada", color: "bg-emerald-100 text-emerald-700" },
-        REJECTED: { label: "Rechazada", color: "bg-red-100 text-red-700" },
-        CANCELLED: { label: "Cancelada", color: "bg-slate-100 text-slate-700" }
-    };
 
     return (
         <div className="min-h-screen bg-slate-50 pt-24 pb-12">
@@ -68,7 +62,7 @@ export default async function PerfilPage() {
                         <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
                             <span>📅</span> Mi Historial de Reservas
                         </h2>
-                        <Link href="/reservar" className="text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors">
+                        <Link href="/espacios" className="text-sm font-medium text-emerald-600 hover:text-emerald-700 transition-colors">
                             + Nueva Reserva
                         </Link>
                     </div>
@@ -86,7 +80,7 @@ export default async function PerfilPage() {
                         ) : (
                             <div className="space-y-4">
                                 {user.reservations.map((reservation) => (
-                                    <div key={reservation.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border border-slate-200 hover:border-emerald-200 hover:bg-emerald-50/30 transition-colors">
+                                    <div key={reservation.id} className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 rounded-xl border border-slate-200 hover:border-emerald-200 hover:bg-emerald-50/30 transition-colors gap-4">
                                         <div className="flex gap-4">
                                             <div className="w-16 h-16 rounded-lg bg-slate-100 overflow-hidden shrink-0">
                                                 {/* Imagen placeholder si no hay imagen real */}
@@ -101,10 +95,15 @@ export default async function PerfilPage() {
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="mt-4 sm:mt-0 flex flex-col items-end gap-2">
-                                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusLabels[reservation.status]?.color || statusLabels.PENDING.color}`}>
-                                                {statusLabels[reservation.status]?.label || reservation.status}
-                                            </span>
+                                        <div className="w-full md:w-auto mt-2 md:mt-0 flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-2 border-t md:border-t-0 pt-3 md:pt-0">
+                                            {(() => {
+                                                const stay = getStayStatus(reservation.startDate, reservation.endDate, reservation.status);
+                                                return (
+                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold border shadow-sm ${stay.color}`}>
+                                                        {stay.label}
+                                                    </span>
+                                                );
+                                            })()}
 
                                             {/* We approximate price calculation for now just using the space price * guests * nights as a demo,
                                                 ideal reality would have saved total price in DB. */}
@@ -124,7 +123,7 @@ export default async function PerfilPage() {
                                                                 Total Estimado: ${total}
                                                             </span>
                                                             {reservation.status === 'APPROVED' && (
-                                                                <PaymentButton reservationId={reservation.id} totalPrice={total} />
+                                                                <PaymentInstructionsModal reservationId={reservation.id} totalPrice={total} />
                                                             )}
                                                         </div>
                                                     );
