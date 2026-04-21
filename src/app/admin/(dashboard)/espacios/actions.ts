@@ -4,9 +4,17 @@ import { prisma } from "@/lib/prisma";
 import { SpaceType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getSession } from "@/lib/session";
+
 
 export async function createSpace(formData: FormData) {
+    const session = await getSession("ADMIN");
+    if (!session || session.role !== "ADMIN") {
+        throw new Error("No autorizado. Se requiere sesión de administrador.");
+    }
+
     const name = formData.get("name") as string;
+
     const description = formData.get("description") as string;
     const price = parseFloat(formData.get("price") as string);
     const capacity = parseInt(formData.get("capacity") as string, 10);
@@ -36,7 +44,13 @@ export async function createSpace(formData: FormData) {
 }
 
 export async function updateSpace(id: string, formData: FormData) {
+    const session = await getSession("ADMIN");
+    if (!session || session.role !== "ADMIN") {
+        throw new Error("No autorizado. Se requiere sesión de administrador.");
+    }
+
     const name = formData.get("name") as string;
+
     const description = formData.get("description") as string;
     const price = parseFloat(formData.get("price") as string);
     const capacity = parseInt(formData.get("capacity") as string, 10);
@@ -65,7 +79,13 @@ export async function updateSpace(id: string, formData: FormData) {
 }
 
 export async function deleteSpace(id: string) {
+    const session = await getSession("ADMIN");
+    if (!session || session.role !== "ADMIN") {
+        throw new Error("No autorizado. Se requiere sesión de administrador.");
+    }
+
     await prisma.space.delete({
+
         where: { id },
     });
 

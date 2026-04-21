@@ -3,6 +3,8 @@ import { getSession } from "@/lib/session";
 import { logoutAdmin } from "@/app/admin/login/actions";
 import { prisma } from "@/lib/prisma";
 import AdminMobileMenu from "@/components/admin/AdminMobileMenu";
+import { redirect } from "next/navigation";
+
 
 // SVG Icons for sidebar
 function DashboardIcon() {
@@ -30,7 +32,13 @@ export default async function AdminLayout({
     children: React.ReactNode;
 }) {
     const session = await getSession("ADMIN");
+    
+    if (!session || session.role !== "ADMIN") {
+        redirect("/admin/login");
+    }
+
     const adminName = session?.name || "Administrador";
+
     const pendingCount = await prisma.reservation.count({
         where: { status: "PENDING" }
     });

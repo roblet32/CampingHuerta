@@ -2,8 +2,12 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { Role } from "@prisma/client";
 
-const secretKey = process.env.SESSION_SECRET || "default_super_secret_for_local_development";
+const secretKey = process.env.SESSION_SECRET;
+if (!secretKey) {
+    throw new Error("CRITICAL: SESSION_SECRET is not defined in environment variables. JWT signing will fail.");
+}
 const key = new TextEncoder().encode(secretKey);
+
 
 const SESSION_COOKIE_NAME_CLIENT = "client_session";
 const SESSION_COOKIE_NAME_ADMIN = "admin_session";

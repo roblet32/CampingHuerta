@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+import { getSession } from "@/lib/session";
 
 // Ensure uploads directory exists and save the file
 export async function POST(request: NextRequest) {
     try {
+        const session = await getSession("ADMIN");
+        if (!session || session.role !== "ADMIN") {
+            return NextResponse.json({ error: "No autorizado. Se requiere sesión de administrador." }, { status: 401 });
+        }
+
         const formData = await request.formData();
+
         const file = formData.get("file") as File | null;
 
         if (!file) {
