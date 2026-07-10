@@ -1,10 +1,15 @@
 import { prisma } from "@/lib/prisma";
+import { randomBytes } from "node:crypto";
+
+function generateSecureToken() {
+    return randomBytes(32).toString("hex");
+}
 
 /**
  * Genera un token de verificación de correo con expiración de 15 minutos.
  */
 export const generateVerificationToken = async (email: string) => {
-    const token = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
+    const token = generateSecureToken();
     const expires = new Date(new Date().getTime() + 15 * 60 * 1000); // 15 minutos
 
     const existingToken = await prisma.verificationToken.findFirst({
@@ -32,7 +37,7 @@ export const generateVerificationToken = async (email: string) => {
  * Genera un token de recuperación de contraseña con expiración de 15 minutos.
  */
 export const generatePasswordResetToken = async (email: string) => {
-    const token = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
+    const token = generateSecureToken();
     const expires = new Date(new Date().getTime() + 15 * 60 * 1000); // 15 minutos
 
     const existingToken = await prisma.passwordResetToken.findFirst({

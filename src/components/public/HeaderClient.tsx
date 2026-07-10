@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import type { SessionPayload } from "@/lib/session";
 
 interface HeaderClientProps {
-    session: any | null;
+    session: SessionPayload | null;
 }
 
 export default function HeaderClient({ session }: HeaderClientProps) {

@@ -3,8 +3,15 @@
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
+import { getSession } from "@/lib/session";
 
 export async function createInternalAdmin(formData: FormData) {
+    const session = await getSession("ADMIN");
+
+    if (!session || session.role !== "ADMIN") {
+        throw new Error("No autorizado. Se requiere sesión de administrador.");
+    }
+
     const name = formData.get("name") as string;
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;

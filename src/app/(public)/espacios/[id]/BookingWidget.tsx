@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createReservationAction } from "./actions";
 
@@ -22,18 +22,12 @@ export default function BookingWidget({
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
 
-    const [minDate, setMinDate] = useState("");
+    const [minDate] = useState(() => new Date().toISOString().split("T")[0]);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [guests, setGuests] = useState(1);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
-
-    useEffect(() => {
-        // Establecer fecha mínima segura en el cliente para evitar errores de hidratación
-        const today = new Date().toISOString().split("T")[0];
-        setMinDate(today);
-    }, []);
 
     // Cálculos simples de prueba
     const sDate = startDate ? new Date(startDate) : null;

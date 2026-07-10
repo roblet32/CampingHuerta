@@ -26,11 +26,9 @@ export async function loginClient(formData: FormData) {
         throw new Error("Credenciales incorrectas.");
     }
 
-    /*
     if (!user.emailVerified) {
         throw new Error("Por favor verifica tu correo electrónico para poder ingresar.");
     }
-    */
 
     await createSession({
         userId: user.id,

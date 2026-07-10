@@ -3,9 +3,8 @@
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
-// import { generateVerificationToken } from "@/lib/tokens";
-// import { sendVerificationEmail } from "@/lib/mail";
-import { createSession } from "@/lib/session";
+import { generateVerificationToken } from "@/lib/tokens";
+import { sendVerificationEmail } from "@/lib/mail";
 
 export async function registerClient(formData: FormData) {
     const name = formData.get("name") as string;
@@ -35,18 +34,7 @@ export async function registerClient(formData: FormData) {
         },
     });
 
-    /*
     const verificationToken = await generateVerificationToken(user.email);
     await sendVerificationEmail(verificationToken.email, verificationToken.token);
     redirect("/registro?success=true");
-    */
-
-    await createSession({
-        userId: user.id,
-        role: user.role,
-        email: user.email,
-        name: user.name,
-    });
-
-    redirect("/");
 }

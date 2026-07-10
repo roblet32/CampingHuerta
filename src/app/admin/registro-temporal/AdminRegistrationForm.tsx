@@ -15,8 +15,8 @@ export default function AdminTemporaryRegistration() {
             try {
                 setError(null);
                 await registerAdmin(formData);
-            } catch (err: any) {
-                setError(err.message || "Ocurrió un error al registrar al administrador.");
+            } catch (err) {
+                setError(err instanceof Error ? err.message : "Ocurrió un error al registrar al administrador.");
             }
         });
     };

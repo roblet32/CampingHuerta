@@ -15,8 +15,8 @@ export default function AdminLogin() {
             try {
                 setError(null);
                 await loginAdmin(formData);
-            } catch (err: any) {
-                setError(err.message || "Credenciales incorrectas.");
+            } catch (err) {
+                setError(err instanceof Error ? err.message : "Credenciales incorrectas.");
             }
         });
     };

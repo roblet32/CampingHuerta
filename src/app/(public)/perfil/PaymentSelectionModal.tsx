@@ -3,7 +3,6 @@
 import { useState } from "react";
 
 export default function PaymentInstructionsModal({
-    reservationId,
     totalPrice
 }: {
     reservationId: string;
@@ -57,7 +56,7 @@ export default function PaymentInstructionsModal({
                             <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-3">
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Aviso importante</p>
                                 <p className="text-xs text-slate-500 leading-relaxed">
-                                    Una vez que realices el pago, el administrador actualizará tu estado a <strong>"Confirmada"</strong> y recibirás un correo de confirmación final.
+                                    Una vez que realices el pago, el administrador actualizará tu estado a <strong>&quot;Confirmada&quot;</strong> y recibirás un correo de confirmación final.
                                 </p>
                             </div>
                         </div>

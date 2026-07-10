@@ -35,7 +35,6 @@ export async function POST(request: NextRequest) {
 
         // Generate a unique filename to avoid collisions
         const timestamp = Date.now();
-        const ext = file.name.split(".").pop() || "jpg";
         const safeOriginalName = file.name.replace(/[^a-zA-Z0-9.]/g, "_").slice(0, 40);
         const filename = `${timestamp}_${safeOriginalName}`;
 

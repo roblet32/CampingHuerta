@@ -19,8 +19,8 @@ export default function RegisterPage() {
             try {
                 setError(null);
                 await registerClient(formData);
-            } catch (err: any) {
-                setError(err.message || "Ocurrió un error al registrarte.");
+            } catch (err) {
+                setError(err instanceof Error ? err.message : "Ocurrió un error al registrarte.");
             }
         });
     };

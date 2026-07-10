@@ -18,9 +18,9 @@ export default function AdminCreationForm() {
                 setSuccess(false);
                 await createInternalAdmin(formData);
                 setSuccess(true);
-                (e.target as HTMLFormElement).reset();
-            } catch (err: any) {
-                setError(err.message || "Ocurrió un error al registrar al administrador.");
+                e.currentTarget.reset();
+            } catch (err) {
+                setError(err instanceof Error ? err.message : "Ocurrió un error al registrar al administrador.");
             }
         });
     };

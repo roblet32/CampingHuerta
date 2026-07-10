@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const SESSION_COOKIE_NAME = "auth_session";
-const secretKey = process.env.SESSION_SECRET || "default_super_secret_for_local_development";
+const secretKey = process.env.SESSION_SECRET;
 const key = new TextEncoder().encode(secretKey);
 
 export async function proxy(request: NextRequest) {
@@ -26,6 +25,11 @@ export async function proxy(request: NextRequest) {
   const sessionCookieName = isAccessingAdmin ? "admin_session" : "client_session";
 
   if (isAccessingAdmin && !isPublicAdminRoute) {
+    if (!secretKey) {
+      url.pathname = isAdminSubdomain ? '/login' : '/admin/login';
+      return NextResponse.redirect(url);
+    }
+
     const sessionCookie = request.cookies.get(sessionCookieName)?.value;
 
     let redirectToLogin = false;
@@ -38,7 +42,7 @@ export async function proxy(request: NextRequest) {
         if (payload.role !== "ADMIN") {
           redirectToLogin = true;
         }
-      } catch (error) {
+      } catch {
         redirectToLogin = true;
       }
     }

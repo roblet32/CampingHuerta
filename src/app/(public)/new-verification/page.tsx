@@ -1,50 +1,25 @@
-"use client";
-
-import { useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { newVerification } from "./actions";
 import Link from "next/link";
+import { newVerification } from "./actions";
 
-export default function NewVerificationPage() {
-    const [error, setError] = useState<string | undefined>();
-    const [success, setSuccess] = useState<string | undefined>();
+type NewVerificationPageProps = {
+    searchParams: Promise<{
+        token?: string;
+    }>;
+};
 
-    const searchParams = useSearchParams();
-    const token = searchParams.get("token");
+export default async function NewVerificationPage({ searchParams }: NewVerificationPageProps) {
+    const { token } = await searchParams;
+    const result = token
+        ? await newVerification(token)
+        : { error: "¡Falta el token!", success: undefined };
 
-    const onSubmit = useCallback(() => {
-        if (success || error) return;
-
-        if (!token) {
-            setError("¡Falta el token!");
-            return;
-        }
-
-        newVerification(token)
-            .then((data) => {
-                setSuccess(data.success);
-                setError(data.error);
-            })
-            .catch(() => {
-                setError("¡Algo salió mal!");
-            });
-    }, [token, success, error]);
-
-    useEffect(() => {
-        onSubmit();
-    }, [onSubmit]);
+    const success = result.success;
+    const error = result.error;
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 pt-24 font-[family-name:var(--font-geist-sans)]">
             <div className="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 p-8 text-center">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6">Verificación de Correo</h1>
-                
-                {!success && !error && (
-                    <div className="flex flex-col items-center">
-                        <div className="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-                        <p className="text-gray-600">Confirmando su verificación...</p>
-                    </div>
-                )}
 
                 {success && (
                     <div className="flex flex-col items-center">

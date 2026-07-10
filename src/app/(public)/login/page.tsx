@@ -16,8 +16,8 @@ export default function LoginPage() {
             try {
                 setError(null);
                 await loginClient(formData);
-            } catch (err: any) {
-                setError(err.message || "Ocurrió un error al iniciar sesión.");
+            } catch (err) {
+                setError(err instanceof Error ? err.message : "Ocurrió un error al iniciar sesión.");
             }
         });
     };

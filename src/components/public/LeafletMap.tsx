@@ -6,7 +6,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 // Workaround para iconos de Leaflet en Next.js
-// @ts-ignore
+// @ts-expect-error Leaflet keeps this private field in its default icon prototype.
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",

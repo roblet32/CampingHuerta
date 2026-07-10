@@ -14,11 +14,6 @@ export default function AdminMobileMenu({ pendingCount, adminName, logoutAction 
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
 
-    // Cerrar menú al cambiar de ruta
-    useEffect(() => {
-        setIsOpen(false);
-    }, [pathname]);
-
     // Bloquear scroll cuando el menú está abierto
     useEffect(() => {
         if (isOpen) {
@@ -26,6 +21,10 @@ export default function AdminMobileMenu({ pendingCount, adminName, logoutAction 
         } else {
             document.body.style.overflow = "unset";
         }
+
+        return () => {
+            document.body.style.overflow = "unset";
+        };
     }, [isOpen]);
 
     const menuItems = [
@@ -93,6 +92,7 @@ export default function AdminMobileMenu({ pendingCount, adminName, logoutAction 
                                 <Link 
                                     key={item.href}
                                     href={item.href}
+                                    onClick={() => setIsOpen(false)}
                                     className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                                         isActive 
                                             ? "bg-emerald-600 text-white shadow-lg shadow-emerald-900/20" 
